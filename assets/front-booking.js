@@ -31,6 +31,7 @@
     categories: [],
     services: [],
     options: [],
+    optionsServiceId: null,
     selected: {
       categoryId: null,
       serviceId: PUP_FRONT.defaultServiceId ? Number(PUP_FRONT.defaultServiceId) : null,
@@ -84,11 +85,11 @@
     const ensureOptionsLoaded = async () => {
       const sid = Number(state.selected.serviceId || 0);
       if (!sid) return;
-    
-      // Si options déjà chargées pour ce service, on ne refait pas l'appel.
-      // (on garde la logique simple : si tu changes de service, loadOptions() reset déjà)
-      if (Array.isArray(state.options) && state.options.length > 0) return;
-    
+
+      // Recharge si aucune option ou si elles proviennent d'un autre service
+      const alreadyForService = Number(state.optionsServiceId || 0) === sid;
+      if (Array.isArray(state.options) && state.options.length > 0 && alreadyForService) return;
+
       await loadOptions();
     };
 
@@ -99,6 +100,7 @@
     if (!sid) return;
     const out = await apiGet(`/public/services/${sid}/options`);
     state.options = out.items || [];
+    state.optionsServiceId = sid;
   };
 
   const loadSlots = async () => {
@@ -416,44 +418,34 @@
       const dateInput = root.querySelector("#date");
       const slotsBox = root.querySelector("#slots");
 
-      const refresh = async () => {
-        if (!slotsBox) return;
-        slotsBox.innerHTML = `<span class="pup-b-muted">Chargement des créneaux…</span>`;
-        try {
-          const items = await loadSlots();
-          const flat = [];
-          
-          // On aplatit les slots car le nouveau contrôleur renvoie une structure groupée
-          items.forEach(emp => {
-            if (emp.slots) {
-              emp.slots.forEach(t => {
-                flat.push({
-                  employee_id: emp.employee_id,
-                  employee_name: emp.employee_name,
-                  time: t
-                });
-              });
-            }
-          });
+          const slotsHtml = flat.map(s => {
+            // Comparaison stricte pour la coloration
+            const isSel = state.selected.slot &&
+                          String(state.selected.slot.time) === String(s.time);
 
-          if (!flat.length) {
-            slotsBox.innerHTML = `<span class="pup-b-muted">Aucun créneau disponible pour cette date.</span>`;
-            return;
-          }
+            // Couleur bordeaux (#b00020) si sélectionné
+            const style = isSel
+              ? 'background:#b00020; border-color:#b00020; color:#fff; font-weight:bold;'
+              : 'background:#fff; color:#111;';
 
-          slotsBox.innerHTML = `
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              ${flat.map(s => {
-                // Comparaison stricte pour la coloration
-                const isSel = state.selected.slot && 
-                              String(state.selected.slot.time) === String(s.time);
+            return `
+              <button
+                type="button"
+                class="pup-b-btn secondary pup-slot-btn ${isSel ? 'active' : ''}"
+                data-e="${s.employee_id}"
+                data-n="${esc(s.employee_name)}"
+                data-t="${esc(s.time)}"
+                style="padding:8px 12px; min-width:80px; cursor:pointer; ${style}">
+                ${esc(s.time)}
+              </button>
+            `;
+          }).join("");
 
-                // Couleur bordeaux (#b00020) si sélectionné
-                const style = isSel 
-                  ? 'background:#b00020; border-color:#b00020; color:#fff; font-weight:bold;' 
-                  : 'background:#fff; color:#111;';
+              ${slotsHtml}
 
-                return `
+
+              // On re-render pour mettre à jour la coloration et le bouton Continuer
+              render();
                   <button
                     type="button"
                     class="pup-b-btn secondary pup-slot-btn ${isSel ? 'active' : ''}"
