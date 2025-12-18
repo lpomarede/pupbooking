@@ -1,0 +1,13 @@
+.pup-booking-root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+.pup-b-card { background:#fff; border:1px solid #e6e6e6; border-radius:18px; padding:16px; box-shadow:0 6px 20px rgba(0,0,0,.06); }
+.pup-b-row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.pup-b-space { justify-content:space-between; }
+.pup-b-muted { color:#666; }
+.pup-b-btn { border:0; border-radius:12px; padding:10px 14px; background:#111; color:#fff; cursor:pointer; }
+.pup-b-btn.secondary { background:#f2f2f2; color:#111; }
+.pup-b-grid { display:grid; grid-template-columns: 1fr; gap:12px; }
+.pup-b-grid2 { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+.pup-b-input, .pup-b-select { width:100%; padding:10px 12px; border-radius:12px; border:1px solid #ddd; }
+.pup-b-slot { padding:10px 12px; border:1px solid #eee; border-radius:12px; cursor:pointer; }
+.pup-b-slot[data-active="1"] { border-color:#111; }
+.pup-b-err { color:#b00020; }
