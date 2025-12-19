@@ -428,6 +428,31 @@
               slotsHtml,
               '</div>'
             ].join("");
+            slotsBox.innerHTML = `
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                ${flat.map(s => {
+                  const isSel = state.selected.slot &&
+                                 Number(state.selected.slot.employee_id) === Number(s.employee_id) &&
+                                 String(state.selected.slot.time) === String(s.time);
+
+                  const style = isSel
+                    ? 'background:#b00020; border-color:#b00020; color:#fff; font-weight:bold;'
+                    : 'background:#fff; color:#111;';
+
+                  return `
+                    <button
+                      type="button"
+                      class="pup-b-btn secondary pup-slot-btn ${isSel ? 'active' : ''}"
+                      data-e="${s.employee_id}"
+                      data-n="${esc(s.employee_name)}"
+                      data-t="${esc(s.time)}"
+                      style="padding:8px 12px; min-width:80px; cursor:pointer; ${style}">
+                      ${esc(s.time)}
+                    </button>
+                  `;
+                }).join("")}
+              </div>
+            `;
       const dateInput = root.querySelector("#date");
       const slotsBox = root.querySelector("#slots");
 
